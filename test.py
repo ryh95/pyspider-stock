@@ -19,7 +19,7 @@ class Handler(BaseHandler):
         StockCodes = []
         temp = initcode
         
-        for i in range(3):
+        for i in range(1):
             StockCodes.append(temp)
             temp = str(int(temp)+1)
         #print StockCodes
@@ -46,7 +46,7 @@ class Handler(BaseHandler):
             else:
                 author = each.xpath('span[4]/span/text()')[0]
 
-            date = each.xpath('span[5]/text()')[0]
+            #date = each.xpath('span[5]/text()')[0]
             last = each.xpath('span[6]/text()')[0]
             address = each.xpath('span[3]/a/@href')[0]
             baseUrl = 'http://guba.eastmoney.com'
@@ -78,8 +78,8 @@ class Handler(BaseHandler):
         data = info.xpath('string(.)').replace('\n','').replace('\r','').replace('\t','')
         time_text = selector.xpath('//*[@id="zwconttb"]/div[@class="zwfbtime"]/text()')[0]
         time = re.findall('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}',time_text)[0]
-        print time
         item = response.save['item']
         item['text'] = data
-        # item['create'] = 
+        item['create'] = time
+        item['created_at'] = int(re.findall('\d{9}',response.url)[0])
         return item
