@@ -56,7 +56,7 @@ class Handler(BaseHandler):
             item['comment'] = comment
             item['title'] = title
             item['author'] = author
-            item['date'] = date
+            # item['date'] = date
             item['last'] = last
             item['url'] = response.url
 
@@ -76,6 +76,10 @@ class Handler(BaseHandler):
         selector =  etree.HTML(response.text)
         info = selector.xpath('//div[@class="stockcodec"]')[0]
         data = info.xpath('string(.)').replace('\n','').replace('\r','').replace('\t','')
+        time_text = selector.xpath('//*[@id="zwconttb"]/div[@class="zwfbtime"]/text()')[0]
+        time = re.findall('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}',time_text)[0]
+        print time
         item = response.save['item']
         item['text'] = data
+        # item['create'] = 
         return item
