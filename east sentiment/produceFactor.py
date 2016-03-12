@@ -16,7 +16,18 @@ for  document in documents:
     # test 
     # type of the create_date is unicode
     create_date =  document['create'][:10]
-    print create_date 
+    # print create_date 
     # print document['text']
-    s = SnowNLP(document['text'])
-    print s.sentiments
+    if(document['text']!=''):
+        s = SnowNLP(document['text'])
+        # print s.sentiments
+        sentiment_factor = (s.sentiments)*int(document['read'])
+    else:
+        sentiment_factor = 0
+    # print sentiment_factor    
+    result = db.SentimentFactor.insert_one(
+    	{
+    	"create_date" : create_date,
+    	"sentiment_factor" : sentiment_factor
+    })
+    print result.inserted_id
