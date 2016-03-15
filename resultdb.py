@@ -72,10 +72,12 @@ class ResultDB(SplitTableMixin, BaseResultDB):
                 'comment' : result['comment'],
                 'title' : result['title'],
                 'author' : result['author'],
-                'date' : result['date'],
+                # 'date' : result['date'],
                 'last' : result['last'],
                 'text' : result['text'],
-                'url' : result['url']
+                'url' : result['url'],
+                'create' :result['create'],
+                'created_at' : result['created_at']
             }
 #(2) deal with xueqiu.com
         elif url.split('/')[2] == 'xueqiu.com':
@@ -102,11 +104,23 @@ class ResultDB(SplitTableMixin, BaseResultDB):
                 collection_name = self._collection_name(project)
 
 #3.create the item which is going to insert to the mongoDB
-            obj = {
-                'name' : result['name'],
-                'text' : result['text'],
-                'time' : result['time']
-            }
+            if flag == '%E8%87%AA%E9%80%89%E8%82%A1%E6%96%B0%E9%97%BB':
+
+                obj = {
+                    'name' : result['name'],
+                    'text' : result['text'],
+                    'time' : long(result['time']),
+                    'title' : result['title'],
+
+                }
+            else:
+                obj = {
+                    'name' : result['name'],
+                    'text' : result['text'],
+                    'time' : long(result['time']),
+                    # 'title' : result['title'],
+
+                }
 
         return self.database[collection_name].update(
             {'taskid': taskid}, {"$set": self._stringify(obj)}, upsert=True

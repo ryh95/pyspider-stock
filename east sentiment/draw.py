@@ -39,7 +39,7 @@ fig = plt.figure(figsize = (40,8))
 graph = fig.add_subplot(111)
 
 # Plot the data as a red line with round markers
-graph.plot(x,y,'r-o')
+graph.plot(x,y,'r')
 
 # Set the xtick locations to correspond to just the dates you entered.
 graph.set_xticks(x)
