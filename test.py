@@ -19,13 +19,16 @@ class Handler(BaseHandler):
         StockCodes = []
         temp = initcode
         
-        for i in range(1):
+        for i in range(2):
             StockCodes.append(temp)
             temp = str(int(temp)+1)
         #print StockCodes
         
         for stockcode in StockCodes:
             self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',5_1.html', callback=self.index_page)
+            self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',1,'+'f_1.html', callback=self.index_page)
+            self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',2,'+'f_1.html', callback=self.index_page)
+            self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',3,'+'f_1.html', callback=self.index_page)
         #global num
         #num += 1
 
@@ -81,6 +84,9 @@ class Handler(BaseHandler):
         item = response.save['item']
         item['text'] = data
         item['create'] = time
-        item['created_at'] = int(re.findall('\d{9}',response.url)[0])
+        try:
+            item['created_at'] = int(re.findall('\d{9}',response.url)[0])
+        except IndexError,e:
+	        item['created_at'] = int(re.findall('\d{8}',response.url)[0])
         return item
         
