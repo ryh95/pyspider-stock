@@ -1,54 +1,33 @@
 # coding=utf-8
 
-import datetime as DT
 from matplotlib import pyplot as plt
+from pymongo import *
+import pymongo
+import datetime as DT
 from matplotlib.dates import date2num
-from pymongo import MongoClient
-import  pymongo
-import numpy as np
-import tushare as ts
-import pandas as pd
 
 client = MongoClient()
 db = client['601001eastmoney']
 
-documents = db.price.find().sort([
-	('create_date',pymongo.ASCENDING)
+
+# 首先获取数据库中的数据
+documents = db.priceAndsentimentFactor.find().sort([
+	('date',pymongo.ASCENDING)
 ])
 
+# x是日期，z是价格，y是当天的情感因子
+# 情感因子的计算方法：某一天内有很多帖子，一个帖子的正面倾向概率×那个帖子的阅读量，得到一个帖子的情感因子，将当天所有的帖子情感因子相加得到当天的情感因子
 data = []
-# dates用于存放既有股价又有舆论的那一天的日期
-dates= []
-# 这是将股票时间比对舆论时间，找到既有股价又有舆论的那一天，然后将日期|舆论因子的自然对数放入data，后面画出图像日期舆论图想
+z = []
 for document in documents:
-    cursor =  db.SentimentFactor2.find({"create_date":document['create_date']})
-    for item in cursor:
-        info = (DT.datetime.strptime(item['create_date'],"%Y-%m-%d"),np.log(item['sentiment_factor']))
-        data.append(info)
-        dates.append(item['create_date']) 
-
-# # print values
-# data = []
-# for value in values:
-#     date = (DT.datetime.strptime(value['create_date'],"%Y-%m-%d"),np.log10(value['sentiment_factor']))
-#     data.append(date)
-# print data 
-# data = [(DT.datetime.strptime('2010-02-05', "%Y-%m-%d"), 123),
-#         (DT.datetime.strptime('2010-02-19', "%Y-%m-%d"), 678),
-#         (DT.datetime.strptime('2010-03-05', "%Y-%m-%d"), 987),
-#         (DT.datetime.strptime('2010-03-19', "%Y-%m-%d"), 345)]
- 
+    info = (DT.datetime.strptime(document['date'],"%Y-%m-%d"),document['sentiment_factor'])
+    z.append(document['price'])
+    data.append(info)
 
 x = [date2num(date) for (date, value) in data]
 y = [value for (date, value) in data]
 
-z = []
-# 找到既有股价又有舆论的那一天的股价，存入z，后面画出日期|股价图像
-for  date in dates:
-    cursor = db.price.find({"create_date":date})
-    for item in cursor:
-        z.append(item['close']) 
-
+# 下面的代码用于画图
 fig = plt.figure(figsize = (40,8))
 
 graph = fig.add_subplot(111)
@@ -74,3 +53,5 @@ for  label in graph.xaxis.get_ticklabels():
 plt.subplots_adjust(left=0.08,bottom=0.16)
 
 plt.show()
+
+
