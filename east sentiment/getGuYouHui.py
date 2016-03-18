@@ -1,5 +1,5 @@
 # coding=utf-8
-
+# this script is uesd to pick up 100 comments from the 601001's GuYouHui and write them into the text.txt
 from pymongo import  *
 from snownlp import  SnowNLP
 import pymongo

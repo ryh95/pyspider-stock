@@ -5,26 +5,26 @@
 import re
 from pyspider.libs.base_handler import *
 from lxml import etree
+from pymongo import *
 
 #num = 0
 class Handler(BaseHandler):
     crawl_config = {
     }
     
-   
+    def __init__(self):
+        client = MongoClient()
+        db = client['stockcodes']
+        self.StockCodes = []
+        documents = db.HS300.find()
+        for document in documents:
+            self.StockCodes.append(document['stockcode'])
 
-    @every(minutes = 5)
+
+    @every(minutes = 10)
     def on_start(self):
-        initcode = '601001'
-        StockCodes = []
-        temp = initcode
         
-        for i in range(2):
-            StockCodes.append(temp)
-            temp = str(int(temp)+1)
-        #print StockCodes
-        
-        for stockcode in StockCodes:
+        for stockcode in self.StockCodes:
             self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',5_1.html', callback=self.index_page)
             self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',1,'+'f_1.html', callback=self.index_page)
             self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',2,'+'f_1.html', callback=self.index_page)
