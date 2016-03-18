@@ -17,7 +17,14 @@ documents= db.GuYouHui.find().sort([
 	("created_at",pymongo.ASCENDING)
 ])
 
+i = 0
 f=open('text.txt','w')
 for document in documents:
+    f.write(str(i+1))
+    f.write('\n')
     f.write(document['text'])
+    f.write('\n')
+    i+=1
+    if i==100:
+        break
 f.close()
