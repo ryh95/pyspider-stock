@@ -34,4 +34,18 @@ http://guba.eastmoney.com/default,2,f_1.html
 
 测试雪球和新浪的运行情况
 
-3.关于
+3.关于east sentiment
+
+east sentiment以某一个股票为例（601001）
+
+分析舆论和股票价格的相关性
+
+用到的工具有
+
+snownlp numpy pandas matplotlib ...
+
+4.关于set stockcodes 
+
+这个是将沪深300的成分股的股票代码录入mongodb
+
+用于方便处理数据
