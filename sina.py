@@ -15,12 +15,14 @@ class Handler(BaseHandler):
 
 
 
-    @every(minutes = 10)
+
+
+    @every(minutes = 20)
     def on_start(self):
 
-        self.crawl('http://guba.sina.com.cn/?s=bar&name=sz000001',callback = self.index_page)
+        self.crawl('http://guba.sina.com.cn/?s=bar&name=sz000001&type=0&page=1',callback = self.index_page)
 
-    @config(age = 2*60)
+    @config(age = 3*60)
     def index_page(self, response):
         selector = etree.HTML(response.text)
         content_field =  selector.xpath('//*[@id="blk_list_02"]/table/tbody/tr')
@@ -33,52 +35,50 @@ class Handler(BaseHandler):
             comment = each.xpath('td[2]/span/text()')[0]
             title = each.xpath('td[3]/a/text()')[0]
             # author容易因为结构出现异常
-            if each.xpath('td[4]/div/a[1]/text()'):
+            # if each.xpath('td[4]/div/a[1]/text()'):
+            #     author = each.xpath('td[4]/div/a[1]/text()')[0]
+            # elif each.xpath('td[4]/div/text()'):
+            #     author = each.xpath('td[4]/div/text()')[0]
+            # else:
+            #     author = ''
+            if each.xpath('td[4]/div/text()'):
+                author = each.xpath('td[4]/div/text()')[0]
+            elif each.xpath('td[4]/div/a[1]/text()'):
                 author = each.xpath('td[4]/div/a[1]/text()')[0]
             else:
-                author = each.xpath('td[4]/div/text()')[0]
-            print read
-            print comment
-            print title
-            print author
-    #         #date = each.xpath('span[5]/text()')[0]
-    #         last = each.xpath('span[6]/text()')[0]
-    #         address = each.xpath('span[3]/a/@href')[0]
-    #         baseUrl = 'http://guba.eastmoney.com'
-    #         Url = baseUrl+address
-    #         # 将数据放入item
-    #         item['read'] = read
-    #         item['comment'] = comment
-    #         item['title'] = title
-    #         item['author'] = author
-    #         # item['date'] = date
-    #         item['last'] = last
-    #         item['url'] = response.url
-    #
-    #         # 提取内容
-    #         self.crawl(Url,callback=self.detail_page,save={'item':item})
-    #
-    #     #if num == 1:
-    #     # 生成下一页链接
-    #     info = selector.xpath('//*[@id="articlelistnew"]/div[@class="pager"]/span/@data-pager')[0]
-    #     List = info.split('|')
-    #     if int(List[2])*int(List[3])<int(List[1]):
-    #         nextLink = response.url.split('_')[0] +  '_'  + str(int(List[3])+1) + '.html'
-    #         self.crawl(nextLink,callback = self.index_page)
-    #
-    #
-    # def detail_page(self, response):
-    #     selector =  etree.HTML(response.text)
-    #     info = selector.xpath('//div[@class="stockcodec"]')[0]
-    #     data = info.xpath('string(.)').replace('\n','').replace('\r','').replace('\t','')
-    #     time_text = selector.xpath('//*[@id="zwconttb"]/div[@class="zwfbtime"]/text()')[0]
-    #     time = re.findall('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}',time_text)[0]
-    #     item = response.save['item']
-    #     item['text'] = data
-    #     item['create'] = time
-    #     try:
-    #         item['created_at'] = int(re.findall('\d{9}',response.url)[0])
-    #     except IndexError,e:
-	 #        item['created_at'] = int(re.findall('\d{8}',response.url)[0])
-    #     return item
-    #
+                author = ''
+
+
+            # 将数据放入item
+            item['read'] = read
+            item['comment'] = comment
+            item['title'] = title
+            item['author'] = author
+            item['url'] = response.url
+
+            Url = 'http://guba.sina.com.cn'+each.xpath('td[3]/a/@href')[0]
+
+            # 提取内容
+            self.crawl(Url,callback=self.detail_page,save={'item':item})
+
+        page = int(response.url.split('&')[3].split('=')[1])
+        next_page = int(selector.xpath('//*[@id="blk_list_02"]/div[@class="blk_01_b"]/p/a[last()]/@href')[0].split('&')[3].split('=')[1])
+        if(page<next_page):
+            page+=1
+            url = 'http://guba.sina.com.cn/?s=bar&name=sz000001&type=0&page=' + str(page)
+            self.crawl(url,callback = self.index_page)
+
+
+    def detail_page(self, response):
+        selector =  etree.HTML(response.text)
+        data = selector.xpath('//*[@id="thread_content"]')[0]
+        text =  data.xpath('string(.)').replace('\n','').replace('\r','').replace('t','')
+        item = response.save['item']
+        item['text'] = text
+        #time = response.doc('.iltp_time > span').text()
+        time = re.findall('<div class=\'fl_left iltp_time\'><span>(.*?)</span></div>',response.text)[0]
+        #time = selector.xpath('//*[@id="thread"]/div[@class="il_txt"]/div[@class="ilt_panel clearfix"]/div[@class="fl_left iltp_time"]/span/text()')
+        item['time'] = time
+        item['tid'] = int(re.findall('tid=(.*?)&bid',response.url)[0])
+        return item
+

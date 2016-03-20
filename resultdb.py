@@ -76,8 +76,8 @@ class ResultDB(SplitTableMixin, BaseResultDB):
                 'last' : result['last'],
                 'text' : result['text'],
                 'url' : result['url'],
-                'create' :result['create'],
-                'created_at' : result['created_at']
+                'create' : result['create'],
+                'created_at' :result['created_at']
             }
 #(2) deal with xueqiu.com
         elif url.split('/')[2] == 'xueqiu.com':
@@ -121,6 +121,26 @@ class ResultDB(SplitTableMixin, BaseResultDB):
                     # 'title' : result['title'],
 
                 }
+# (3)deal with guba.sina.com
+        elif url.split('/')[2] == 'guba.sina.com.cn':
+# 1.specify the database name
+            stockCode = re.findall('name=(.*?)&type',result['url'])[0]
+            self.database = self.conn[stockCode+'sina']
+# 2.specify the collection name
+            collection_name = 'TaoLun'
+
+# 3.create the item which is going to insert to the mongoDB
+            obj = {
+                    'author' : result['author'],
+                    'comment' : result['comment'],
+                    'read' : long(result['read']),
+                    'title' : result['title'],
+                    'text' : result['text'],
+                    'tid' : result['tid'],
+                    'time' : result['time'],
+                    'url' : result['url']
+                }
+
 
         return self.database[collection_name].update(
             {'taskid': taskid}, {"$set": self._stringify(obj)}, upsert=True
