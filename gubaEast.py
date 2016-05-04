@@ -13,13 +13,13 @@ class Handler(BaseHandler):
     }
     
     def __init__(self):
-        client = MongoClient()
-        db = client['stockcodes']
-        self.StockCodes = []
-        documents = db.HS300.find()
-        for document in documents:
-            self.StockCodes.append(document['stockcode'])
-
+        # client = MongoClient()
+        # db = client['stockcodes']
+        # self.StockCodes = []
+        # documents = db.HS300.find()
+        # for document in documents:
+        #     self.StockCodes.append(document['stockcode'])
+        self.StockCodes = ['601001','601003']
 
     @every(minutes = 10)
     def on_start(self):

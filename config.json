@@ -1,0 +1,6 @@
+{
+  "taskdb": "mongodb+taskdb://127.0.0.1:27017/taskdb",
+  "projectdb": "mongodb+projectdb://127.0.0.1:27017/projectdb",
+  "resultdb": "mongodb+resultdb://127.0.0.1:27017/resultdb",
+  "message_queue": "redis://127.0.0.1:6379/db"
+}
