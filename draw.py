@@ -54,4 +54,6 @@ plt.subplots_adjust(left=0.08,bottom=0.16)
 
 plt.show()
 
+fig.savefig('601001stockNLP.png')
+
 
