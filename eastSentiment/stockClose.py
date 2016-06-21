@@ -6,7 +6,7 @@ import tushare as ts
 
 def getStockClose(stockCode):
     client = MongoClient()
-    db = client[stockCode+'east']
+    db = client[stockCode+'eastmoney']
 
     # Todo:fix the time
     dates = ts.get_hist_data(stockCode,start = '2014-03-13',end  = '2016-03-10').index.tolist()
