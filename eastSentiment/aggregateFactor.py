@@ -1,18 +1,27 @@
+# coding:utf8
+import datetime
 from pymongo import MongoClient
 
 def getSentimentFactor2(stockcode):
     client = MongoClient()
-    db = client[stockcode+'eastmoney']
+    # 获取昨天的日期
+    now_time = datetime.datetime.now()
+    yes_time = now_time + datetime.timedelta(days=-1)
+    grab_time = yes_time.strftime('%m-%d')
 
-    documents = db.SentimentFactor.aggregate(
+    db = client[stockcode+'eastmoney']
+    coll = db[grab_time+'SentimentFactor']
+
+    documents = coll.aggregate(
         [
-            {"$group": {"_id": "$create_date", "sentiment_factor": {"$sum": "$sentiment_factor"}}}
+            {"$group": {"_id": "$last_date", "sentiment_factor": {"$sum": "$sentiment_factor"}}}
         ]
     )
 
+    coll2 = db[grab_time+'SentimentFactor2']
     for result in documents['result']:
-        db.SentimentFactor2.insert_one({
+        coll2.insert_one({
             "sentiment_factor": result['sentiment_factor'],
-            "create_date": result['_id']
+            "last_date": result['_id']
         })
 

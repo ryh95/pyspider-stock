@@ -3,6 +3,8 @@
 # Created on 2016-02-02 11:38:51
 # Project: HelloWorld
 import re
+
+import datetime
 from pyspider.libs.base_handler import *
 from lxml import etree
 from pymongo import *
@@ -13,32 +15,45 @@ class Handler(BaseHandler):
     }
     
     def __init__(self):
-        # client = MongoClient()
-        # db = client['stockcodes']
-        # self.StockCodes = []
-        # documents = db.HS300.find()
-        # for document in documents:
-        #     self.StockCodes.append(document['stockcode'])
-        self.StockCodes = ['601001','601003']
+        client = MongoClient()
+        db = client['stockcodes']
+        self.StockCodes = []
+        documents = db.HS300.find()
+        for document in documents:
+            self.StockCodes.append(document['stockcode'])
+        # self.StockCodes = ['601001','601003']
 
-    @every(minutes = 10)
+    @every(minutes = 24*60)
     def on_start(self):
         
         for stockcode in self.StockCodes:
             self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',5_1.html', callback=self.index_page)
-            self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',1,'+'f_1.html', callback=self.index_page)
-            self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',2,'+'f_1.html', callback=self.index_page)
-            self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',3,'+'f_1.html', callback=self.index_page)
+            # self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',1,'+'f_1.html', callback=self.index_page)
+            # self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',2,'+'f_1.html', callback=self.index_page)
+            # self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',3,'+'f_1.html', callback=self.index_page)
         #global num
         #num += 1
 
-    @config(age = 2*60)
+    @config(age = 60*60*24)
     def index_page(self, response):
         selector = etree.HTML(response.text)
         content_field =  selector.xpath('//*[@id="articlelistnew"]/div[starts-with(@class,"articleh")]')
-       
+        # 获取昨天时间，用于抓取
+        now_time = datetime.datetime.now()
+        yes_time = now_time + datetime.timedelta(days=-1)
+        grab_time = yes_time.strftime('%m-%d')
+        flag = True
+
         # 提取每一页的所有帖子
         for each in content_field:
+            last = each.xpath('span[6]/text()')[0]
+            last_time = last[:5]
+            # 根据时间来判断
+            if grab_time != last_time:
+                flag = True
+                continue
+            else:
+                flag = False
             item = {}
             read = each.xpath('span[1]/text()')[0]
             comment = each.xpath('span[2]/text()')[0]
@@ -50,7 +65,7 @@ class Handler(BaseHandler):
                 author = each.xpath('span[4]/span/text()')[0]
 
             #date = each.xpath('span[5]/text()')[0]
-            last = each.xpath('span[6]/text()')[0]
+
             address = each.xpath('span[3]/a/@href')[0]
             baseUrl = 'http://guba.eastmoney.com'
             Url = baseUrl+address
@@ -68,11 +83,12 @@ class Handler(BaseHandler):
             
         #if num == 1:    
         # 生成下一页链接
-        info = selector.xpath('//*[@id="articlelistnew"]/div[@class="pager"]/span/@data-pager')[0]
-        List = info.split('|')
-        if int(List[2])*int(List[3])<int(List[1]):
-            nextLink = response.url.split('_')[0] +  '_'  + str(int(List[3])+1) + '.html'
-            self.crawl(nextLink,callback = self.index_page)
+        if flag == False:
+            info = selector.xpath('//*[@id="articlelistnew"]/div[@class="pager"]/span/@data-pager')[0]
+            List = info.split('|')
+            if int(List[2])*int(List[3])<int(List[1]):
+                nextLink = response.url.split('_')[0] +  '_'  + str(int(List[3])+1) + '.html'
+                self.crawl(nextLink,callback = self.index_page)
 
    
     def detail_page(self, response):
@@ -87,6 +103,6 @@ class Handler(BaseHandler):
         try:
             item['created_at'] = int(re.findall('\d{9}',response.url)[0])
         except IndexError,e:
-	        item['created_at'] = int(re.findall('\d{8}',response.url)[0])
+            item['created_at'] = int(re.findall('\d{8}',response.url)[0])
         return item
         

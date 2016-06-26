@@ -1,3 +1,4 @@
 .idea/
 gitignore
 eastSentiment/*.pyc
+*.pyc
