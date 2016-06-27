@@ -23,11 +23,15 @@ def setDailyResult(stockcode):
     dailyCounts =  coll.count()
 
     db = client[grab_time]
-    db.DailyResult.insert_one(
-        {
-            "stock_code":stockcode,
-            "sentiment_factor":sentimentFactor,
-            "daily_counts":dailyCounts
-        }
-    )
+    try:
+        db.DailyResult.insert_one(
+            {
+                "stock_code": stockcode,
+                "sentiment_factor": sentimentFactor,
+                "daily_counts": dailyCounts
+            }
+        )
+    except UnboundLocalError,e:
+        pass
+
 
