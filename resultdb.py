@@ -9,6 +9,7 @@ import json
 import logging
 import time
 import re
+import datetime
 from pymongo import MongoClient
 from pyspider.database.base.resultdb import ResultDB as BaseResultDB
 from .mongodbbase import SplitTableMixin
@@ -47,11 +48,13 @@ class ResultDB(SplitTableMixin, BaseResultDB):
 
 #2.specify the collection_name
             flag = result['url'].split(',')[2][0]
-
+            #now_time = datetime.datetime.now()
+            #yes_time = now_time + datetime.timedelta(days=-1)
+            #grab_time = yes_time.strftime('%m-%d')
 
 
             if flag == '5':
-                collection_name = 'GuYouHui'
+                collection_name = result['last'][:5]+'GuYouHui'
             elif flag == '1':
                 collection_name = 'XinWen'
             elif flag == '2':
@@ -152,7 +155,7 @@ class ResultDB(SplitTableMixin, BaseResultDB):
         if project not in self.projects:
             return
         collection_name = self._collection_name(project)
-        for result in self.database[collection_name].find(fields=fields, skip=offset, limit=limit):
+        for result in self.database[collection_name].find({}, fields, skip=offset, limit=limit):
             yield self._parse(result)
 
     def count(self, project):
@@ -169,7 +172,7 @@ class ResultDB(SplitTableMixin, BaseResultDB):
         if project not in self.projects:
             return
         collection_name = self._collection_name(project)
-        ret = self.database[collection_name].find_one({'taskid': taskid}, fields=fields)
+        ret = self.database[collection_name].find_one({'taskid': taskid}, fields)
         if not ret:
             return ret
         return self._parse(ret)
