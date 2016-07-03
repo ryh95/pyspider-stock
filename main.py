@@ -18,26 +18,27 @@ documents = db.HS300.find()
 for document in documents:
     stockCodes.append(document['stockcode'])
 
-grab_time = []
+grab_time = ['07-02']
 
-for i in range(20):
-    now_time = datetime.datetime.now()
-    yes_time = now_time + datetime.timedelta(days=-29+i)
-    grab_time.append(yes_time.strftime('%m-%d'))
+# for i in range(20):
+#     now_time = datetime.datetime.now()
+#     yes_time = now_time + datetime.timedelta(days=-29+i)
+#     grab_time.append(yes_time.strftime('%m-%d'))
 
 
 
 # Todo:add time.sleep(60*60*24)
-for stockCode in stockCodes:
-    # stockClose.getStockClose(stockCode)
-    for date in grab_time:
-        produceFactor.getSentimentFactor(stockCode,date)
-        aggregateFactor.getSentimentFactor2(stockCode,date)
-        dailyResult.setDailyResult(stockCode,date)
+# for stockCode in stockCodes:
+#     # stockClose.getStockClose(stockCode)
+#     for date in grab_time:
+#         produceFactor.getSentimentFactor(stockCode,date)
+#         aggregateFactor.getSentimentFactor2(stockCode,date)
+#         dailyResult.setDailyResult(stockCode,date)
 
     # combine.getPriceAndSentimentFactor(stockCode)
     # draw.getPic(stockCode)
 for date in grab_time:
-    outputResult.getResult(date)
+    # outputResult.getDailyResult(date)
+    outputResult.getDailyAttachment(date)
 # sendMail.send()
 

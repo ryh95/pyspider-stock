@@ -39,10 +39,11 @@ class Handler(BaseHandler):
         selector = etree.HTML(response.text)
         content_field =  selector.xpath('//*[@id="articlelistnew"]/div[starts-with(@class,"articleh")]')
         # 获取昨天时间，用于抓取
-        now_time = datetime.datetime.now()
-        yes_time = now_time + datetime.timedelta(days=-1)
-        grab_time = yes_time.strftime('%m-%d')
-        flag = True
+        # now_time = datetime.datetime.now()
+        # yes_time = now_time + datetime.timedelta(days=-1)
+        # grab_time = yes_time.strftime('%m-%d')
+        grab_time = '06-23'
+        # flag = True
 
         # 提取每一页的所有帖子
         for each in content_field:
@@ -50,10 +51,10 @@ class Handler(BaseHandler):
             last_time = last[:5]
             # 根据时间来判断
             if grab_time != last_time:
-                flag = True
+                # flag = True
                 continue
-            else:
-                flag = False
+            # else:
+            #     flag = False
             item = {}
             read = each.xpath('span[1]/text()')[0]
             comment = each.xpath('span[2]/text()')[0]
@@ -83,12 +84,12 @@ class Handler(BaseHandler):
             
         #if num == 1:    
         # 生成下一页链接
-        if flag == False:
-            info = selector.xpath('//*[@id="articlelistnew"]/div[@class="pager"]/span/@data-pager')[0]
-            List = info.split('|')
-            if int(List[2])*int(List[3])<int(List[1]):
-                nextLink = response.url.split('_')[0] +  '_'  + str(int(List[3])+1) + '.html'
-                self.crawl(nextLink,callback = self.index_page)
+        # if flag == False:
+        info = selector.xpath('//*[@id="articlelistnew"]/div[@class="pager"]/span/@data-pager')[0]
+        List = info.split('|')
+        if int(List[2])*int(List[3])<int(List[1]):
+            nextLink = response.url.split('_')[0] +  '_'  + str(int(List[3])+1) + '.html'
+            self.crawl(nextLink,callback = self.index_page)
 
    
     def detail_page(self, response):
