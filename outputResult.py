@@ -63,14 +63,22 @@ def getDailyResult(date):
     # 保存
     wb.save('data/'+date + 'result' + '.xls')
 
-def getDailyStockSentiment(stockcode, date):
+def getDailyStockInfo(stockcode, date,type='sentiment'):
     client = MongoClient()
     db = client[date]
     cursor = db.DailyResult.find({"stock_code":stockcode})
     sentiment = None
+    posts = None
     for document in cursor:
-        sentiment = document['sentiment_factor']
-    return sentiment
+        if type == 'sentiment':
+            sentiment = document['sentiment_factor']
+        else:
+            posts = document['daily_counts']
+    if type == 'sentiment':
+        return sentiment
+    else:
+        return posts
+
 
 def getDailyAttachment(date):
     df = pd.read_excel("data/"+date+"result.xls",
@@ -81,7 +89,7 @@ def getDailyAttachment(date):
 
     dict_pos = getResultDict(positive_stockcodes,date)
     dict_neg = getResultDict(negative_stockcodes,date)
-    dict_hot = getResultDict(hottest_stockcodes,date)
+    dict_hot = getResultDict(hottest_stockcodes,date,type='hottest')
 
     writer = pd.ExcelWriter(date + 'attachment.xls')
 
@@ -95,7 +103,7 @@ def getDailyAttachment(date):
 
     writer.save()
 
-def getResultDict(codes,date):
+def getResultDict(codes,date,type='sentiment'):
     result_dict = {'stockcodes':codes}
     now_time = datetime.datetime.strptime(date, '%m-%d')
     for i in range(20):
@@ -103,7 +111,7 @@ def getResultDict(codes,date):
         yes_time = yes_time.strftime('%m-%d')
         col_sentiments = []
         for stockcode in codes:
-            dailysentiment = getDailyStockSentiment(stockcode, yes_time)
+            dailysentiment = getDailyStockInfo(stockcode, yes_time,type=type)
             col_sentiments.append(dailysentiment)
         result_dict[yes_time] = col_sentiments
     return result_dict

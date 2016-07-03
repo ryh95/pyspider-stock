@@ -6,6 +6,8 @@ from email.mime.text import MIMEText
 
 import datetime
 
+import pandas as pd
+
 
 def send(date):
     _user = "1971990184@qq.com"
@@ -21,13 +23,13 @@ def send(date):
     msg["Subject"] = date+"Result"
     msg["From"] = _user
     msg["To"] = _to
-    msg.attach(MIMEText("yesterday's result", 'plain', 'utf-8'))
+    msg.attach(MIMEText(excel2str(date), 'plain', 'utf-8'))
 
-    with open('/home/ryh/gitProject/pyspider-stock/data/'+date+'result.xls', 'rb') as f:
+    with open(date+'attachment.xls', 'rb') as f:
         # 设置附件的MIME和文件名，这里是png类型:
-        mime = MIMEBase('file', 'xls', filename=date+'result.xls')
+        mime = MIMEBase('file', 'xls', filename=date+'attachment.xls')
         # 加上必要的头信息:
-        mime.add_header('Content-Disposition', 'attachment', filename=date+'result.xls')
+        mime.add_header('Content-Disposition', 'attachment', filename=date+'attachment.xls')
         mime.add_header('Content-ID', '<0>')
         mime.add_header('X-Attachment-Id', '0')
         # 把附件的内容读进来:
@@ -45,3 +47,13 @@ def send(date):
         print "Succeed in sending mail!"
     except smtplib.SMTPException, e:
         print "Falied,%s" % e
+
+def excel2str(date):
+    df = pd.read_excel("data/" + date + "result.xls",
+        converters={'positive': str, 'negative': str, 'hottest': str})
+    string = ''
+    for list in df.values:
+        for item in list:
+            string += str(item)+'    '
+        string += "\n"
+    return string
