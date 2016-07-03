@@ -1,3 +1,4 @@
+import datetime
 from pymongo import MongoClient
 
 import dailyResult
@@ -17,17 +18,26 @@ documents = db.HS300.find()
 for document in documents:
     stockCodes.append(document['stockcode'])
 
+grab_time = []
+
+for i in range(20):
+    now_time = datetime.datetime.now()
+    yes_time = now_time + datetime.timedelta(days=-29+i)
+    grab_time.append(yes_time.strftime('%m-%d'))
+
+
+
 # Todo:add time.sleep(60*60*24)
 for stockCode in stockCodes:
     # stockClose.getStockClose(stockCode)
-
-    produceFactor.getSentimentFactor(stockCode)
-    aggregateFactor.getSentimentFactor2(stockCode)
-    dailyResult.setDailyResult(stockCode)
+    for date in grab_time:
+        produceFactor.getSentimentFactor(stockCode,date)
+        aggregateFactor.getSentimentFactor2(stockCode,date)
+        dailyResult.setDailyResult(stockCode,date)
 
     # combine.getPriceAndSentimentFactor(stockCode)
     # draw.getPic(stockCode)
-
-outputResult.getResult()
-sendMail.send()
+for date in grab_time:
+    outputResult.getResult(date)
+# sendMail.send()
 

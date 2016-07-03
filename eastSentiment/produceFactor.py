@@ -4,17 +4,17 @@ from snownlp import  SnowNLP
 import pymongo
 
 # connecting database 601001eastmoney
-def getSentimentFactor(stockcode):
+def getSentimentFactor(stockcode,date):
     client = MongoClient()
 
-    now_time = datetime.datetime.now()
-    yes_time = now_time + datetime.timedelta(days=-1)
-    grab_time = yes_time.strftime('%m-%d')
+    # now_time = datetime.datetime.now()
+    # yes_time = now_time + datetime.timedelta(days=-1)
+    # grab_time = yes_time.strftime('%m-%d')
 
     db = client[stockcode+'eastmoney']
 
     # sort the collection GuYouHui and point to it
-    coll = db[grab_time+'GuYouHui']
+    coll = db[date+'GuYouHui']
 
     documents = coll.find().sort([
         ("created_at", pymongo.DESCENDING)
@@ -34,7 +34,7 @@ def getSentimentFactor(stockcode):
         else:
             sentiment_factor = 0
         # print sentiment_factor
-        coll2 = db[grab_time+'SentimentFactor']
+        coll2 = db[date+'SentimentFactor']
 
         result = coll2.insert_one(
             {

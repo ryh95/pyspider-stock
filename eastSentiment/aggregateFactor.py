@@ -2,15 +2,15 @@
 import datetime
 from pymongo import MongoClient
 
-def getSentimentFactor2(stockcode):
+def getSentimentFactor2(stockcode,date):
     client = MongoClient()
     # 获取昨天的日期
-    now_time = datetime.datetime.now()
-    yes_time = now_time + datetime.timedelta(days=-1)
-    grab_time = yes_time.strftime('%m-%d')
+    # now_time = datetime.datetime.now()
+    # yes_time = now_time + datetime.timedelta(days=-1)
+    # grab_time = yes_time.strftime('%m-%d')
 
     db = client[stockcode+'eastmoney']
-    coll = db[grab_time+'SentimentFactor']
+    coll = db[date+'SentimentFactor']
 
     documents = coll.aggregate(
         [
@@ -18,7 +18,7 @@ def getSentimentFactor2(stockcode):
         ]
     )
 
-    coll2 = db[grab_time+'SentimentFactor2']
+    coll2 = db[date+'SentimentFactor2']
     for result in documents['result']:
         coll2.insert_one({
             "sentiment_factor": result['sentiment_factor'],

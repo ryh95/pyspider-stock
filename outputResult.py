@@ -5,12 +5,12 @@ import pymongo
 import xlwt
 from pymongo import MongoClient
 
-def getResult():
+def getResult(date):
     client = MongoClient()
-    now_time = datetime.datetime.now()
-    yes_time = now_time + datetime.timedelta(days=-1)
-    grab_time = yes_time.strftime('%m-%d')
-    db = client[grab_time]
+    # now_time = datetime.datetime.now()
+    # yes_time = now_time + datetime.timedelta(days=-1)
+    # grab_time = yes_time.strftime('%m-%d')
+    db = client[date]
 
     documents = db.DailyResult.find().sort([
         ("sentiment_factor", pymongo.DESCENDING)
@@ -60,6 +60,6 @@ def getResult():
         if i == threshold:
             break
     # 保存
-    wb.save('data/'+grab_time + 'result' + '.xls')
+    wb.save('data/'+date + 'result' + '.xls')
 
 
