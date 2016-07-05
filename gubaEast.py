@@ -31,19 +31,15 @@ class Handler(BaseHandler):
             # self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',1,'+'f_1.html', callback=self.index_page)
             # self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',2,'+'f_1.html', callback=self.index_page)
             # self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',3,'+'f_1.html', callback=self.index_page)
-        #global num
-        #num += 1
 
     @config(age = 60*60*24)
     def index_page(self, response):
         selector = etree.HTML(response.text)
         content_field =  selector.xpath('//*[@id="articlelistnew"]/div[starts-with(@class,"articleh")]')
         # 获取昨天时间，用于抓取
-        # now_time = datetime.datetime.now()
-        # yes_time = now_time + datetime.timedelta(days=-1)
-        # grab_time = yes_time.strftime('%m-%d')
-        grab_time = '06-23'
-        # flag = True
+        grab_time = '07-03'
+        first = True
+        flag = False
 
         # 提取每一页的所有帖子
         for each in content_field:
@@ -51,10 +47,11 @@ class Handler(BaseHandler):
             last_time = last[:5]
             # 根据时间来判断
             if grab_time != last_time:
-                # flag = True
+                if first != True:
+                    flag = True
+                    break
                 continue
-            # else:
-            #     flag = False
+            first = False
             item = {}
             read = each.xpath('span[1]/text()')[0]
             comment = each.xpath('span[2]/text()')[0]
@@ -65,11 +62,11 @@ class Handler(BaseHandler):
             else:
                 author = each.xpath('span[4]/span/text()')[0]
 
-            #date = each.xpath('span[5]/text()')[0]
+            # date = each.xpath('span[5]/text()')[0]
 
             address = each.xpath('span[3]/a/@href')[0]
             baseUrl = 'http://guba.eastmoney.com'
-            Url = baseUrl+address
+            Url = baseUrl + address
             # 将数据放入item
             item['read'] = read
             item['comment'] = comment
@@ -80,16 +77,17 @@ class Handler(BaseHandler):
             item['url'] = response.url
 
             # 提取内容
-            self.crawl(Url,callback=self.detail_page,save={'item':item})
-            
-        #if num == 1:    
+            self.crawl(Url, callback=self.detail_page, save={'item': item})
+
+
+
         # 生成下一页链接
-        # if flag == False:
-        info = selector.xpath('//*[@id="articlelistnew"]/div[@class="pager"]/span/@data-pager')[0]
-        List = info.split('|')
-        if int(List[2])*int(List[3])<int(List[1]):
-            nextLink = response.url.split('_')[0] +  '_'  + str(int(List[3])+1) + '.html'
-            self.crawl(nextLink,callback = self.index_page)
+        if not flag:
+            info = selector.xpath('//*[@id="articlelistnew"]/div[@class="pager"]/span/@data-pager')[0]
+            List = info.split('|')
+            if int(List[2])*int(List[3])<int(List[1]):
+                nextLink = response.url.split('_')[0] +  '_'  + str(int(List[3])+1) + '.html'
+                self.crawl(nextLink,callback = self.index_page)
 
    
     def detail_page(self, response):
