@@ -25,6 +25,7 @@ def getDailyResult(date):
     ws.write(0, 2, 'negative')
     ws.write(0, 3, 'value')
     ws.write(0, 4, 'hottest')
+    ws.write(0, 5, 'numPosts')
 
     # 写入前２列
     i = 0
@@ -49,7 +50,7 @@ def getDailyResult(date):
         if i == threshold:
             break
 
-    # 写入最后１列
+    # 写入最热门的股票
     documents = db.DailyResult.find().sort([
         ("daily_counts", pymongo.DESCENDING)
     ])
@@ -60,6 +61,19 @@ def getDailyResult(date):
         i += 1
         if i == threshold:
             break
+
+    # 写入最热门股票每天的帖子数
+    documents = db.DailyResult.find().sort([
+        ("daily_counts", pymongo.DESCENDING)
+    ])
+    i = 0
+    for document in documents:
+        # print document
+        ws.write(i + 1, 5, str(document['daily_counts']))
+        i += 1
+        if i == threshold:
+            break
+
     # 保存
     wb.save('data/'+date + 'result' + '.xls')
 
