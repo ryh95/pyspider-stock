@@ -4,6 +4,7 @@ from pymongo import MongoClient
 import dailyResult
 import outputResult
 import sendMail
+import time
 from eastSentiment import stockClose,produceFactor,aggregateFactor,combine
 import draw
 stockCodes = []
@@ -18,28 +19,25 @@ documents = db.HS300.find()
 for document in documents:
     stockCodes.append(document['stockcode'])
 
-grab_time = ['07-03']
-
-# for i in range(20):
-#     now_time = datetime.datetime.now()
-#     yes_time = now_time + datetime.timedelta(days=-29+i)
-#     grab_time.append(yes_time.strftime('%m-%d'))
 
 
+while True:
+    now_time = datetime.datetime.now()
+    yes_time = now_time + datetime.timedelta(days=-1)
+    grab_time = yes_time.strftime('%m-%d')
+    for stockCode in stockCodes:
 
-# Todo:add time.sleep(60*60*24)
-for stockCode in stockCodes:
-    # stockClose.getStockClose(stockCode)
-    for date in grab_time:
-        produceFactor.getSentimentFactor(stockCode,date)
-        aggregateFactor.getSentimentFactor2(stockCode,date)
-        dailyResult.setDailyResult(stockCode,date)
+        produceFactor.getSentimentFactor(stockCode,grab_time)
+        aggregateFactor.getSentimentFactor2(stockCode,grab_time)
+        dailyResult.setDailyResult(stockCode,grab_time)
 
-    # combine.getPriceAndSentimentFactor(stockCode)
-    # draw.getPic(stockCode)
-for date in grab_time:
-    outputResult.getDailyResult(date)
-    outputResult.getDailyAttachment(date)
-for date in grab_time:
-    sendMail.send(date)
+    outputResult.getDailyResult(grab_time)
 
+    sendMail.send(grab_time)
+    
+    client = MongoClient()
+    db = client.taskdb
+    db.east.drop()
+    print 'east collection has been dropped!'
+
+    time.sleep(24*60*60)
