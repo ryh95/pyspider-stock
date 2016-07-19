@@ -13,9 +13,7 @@ def getDailyResult(date):
     # grab_time = yes_time.strftime('%m-%d')
     db = client[date]
 
-    documents = db.DailyResult.find().sort([
-        ("sentiment_factor", pymongo.DESCENDING)
-    ])
+
     # 找到前20名
     threshold = 20
     wb = xlwt.Workbook()
@@ -26,6 +24,12 @@ def getDailyResult(date):
     ws.write(0, 3, 'value')
     ws.write(0, 4, 'hottest')
     ws.write(0, 5, 'numPosts')
+    ws.write(0, 6, 'positive_hottest')
+    ws.write(0, 7, 'value')
+
+    documents = db.DailyResult.find().sort([
+        ("sentiment_factor", pymongo.DESCENDING)
+    ]).limit(threshold)
 
     # 写入前２列
     i = 0
@@ -34,45 +38,44 @@ def getDailyResult(date):
         ws.write(i + 1, 0, str(document['stock_code']))
         ws.write(i + 1, 1, document['sentiment_factor'])
         i += 1
-        if i == threshold:
-            break
+
     # 写入后２列
     documents = db.DailyResult.find().sort([
         ("sentiment_factor", pymongo.ASCENDING)
-    ])
+    ]).limit(threshold)
 
     i = 0
     for document in documents:
-        # print document
         ws.write(i + 1, 2, str(document['stock_code']))
         ws.write(i + 1, 3, document['sentiment_factor'])
         i += 1
-        if i == threshold:
-            break
 
     # 写入最热门的股票
-    documents = db.DailyResult.find().sort([
-        ("daily_counts", pymongo.DESCENDING)
-    ])
-    i = 0
-    for document in documents:
-        # print document
-        ws.write(i + 1, 4, str(document['stock_code']))
-        i += 1
-        if i == threshold:
-            break
-
     # 写入最热门股票每天的帖子数
     documents = db.DailyResult.find().sort([
         ("daily_counts", pymongo.DESCENDING)
-    ])
+    ]).limit(threshold)
+
     i = 0
     for document in documents:
-        # print document
+        ws.write(i + 1, 4, str(document['stock_code']))
         ws.write(i + 1, 5, str(document['daily_counts']))
         i += 1
-        if i == threshold:
-            break
+
+
+    # 对最热门的股票按照情感值递减排序
+    documents = db.DailyResult.aggregate([
+        {"$sort" : {"daily_counts":pymongo.DESCENDING}},
+        {"$limit" : threshold},
+        {"$sort" : {"sentiment_factor":pymongo.DESCENDING}}
+    ])
+
+    i = 0
+    for document in documents['result']:
+        # print document
+        ws.write(i + 1, 6, str(document['stock_code']))
+        ws.write(i + 1, 7, str(document['sentiment_factor']))
+        i += 1
 
     # 保存
     wb.save('data/'+date + 'result' + '.xls')
