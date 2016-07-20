@@ -21,25 +21,28 @@ def getSentimentFactor(stockcode,date):
     ])
 
     for document in documents:
-        # test
-        # type of the create_date is unicode
+
         create_date = document['create'][:10]
         last = document['last'][:5]
-        # print create_date
-        # print document['text']
+
         if (document['text'] != ''):
             s = SnowNLP(document['text'])
-            # print s.sentiments
-            sentiment_factor = (s.sentiments) * int(document['read'])
+            sentiment = s.sentiments
+            sentiment_factor = (sentiment) * int(document['read'])
         else:
-            sentiment_factor = 0
-        # print sentiment_factor
-        coll2 = db[date+'SentimentFactor']
+            sentiment,sentiment_factor = 0,0
+        document['sentiment'] = sentiment
+        document['sentiment_factor'] = sentiment_factor
 
-        result = coll2.insert_one(
-            {
-                "create_date": create_date,
-                "sentiment_factor": sentiment_factor,
-                "last_date": last
-            })
-        print result.inserted_id
+
+
+        # # print sentiment_factor
+        # coll2 = db[date+'SentimentFactor']
+        #
+        # result = coll2.insert_one(
+        #     {
+        #         "create_date": create_date,
+        #         "sentiment_factor": sentiment_factor,
+        #         "last_date": last
+        #     })
+        # print result.inserted_id
