@@ -37,7 +37,9 @@ class Handler(BaseHandler):
         selector = etree.HTML(response.text)
         content_field =  selector.xpath('//*[@id="articlelistnew"]/div[starts-with(@class,"articleh")]')
         # 获取昨天时间，用于抓取
-        grab_time = '07-03'
+        now_time = datetime.datetime.now()
+        yes_time = now_time + datetime.timedelta(days=-1)
+        grab_time = yes_time.strftime('%m-%d')
         first = True
         flag = False
 
