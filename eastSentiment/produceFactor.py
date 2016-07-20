@@ -31,8 +31,7 @@ def getSentimentFactor(stockcode,date):
             sentiment_factor = (sentiment) * int(document['read'])
         else:
             sentiment,sentiment_factor = 0,0
-        document['sentiment'] = sentiment
-        document['sentiment_factor'] = sentiment_factor
+        coll.update({"_id":document['_id']},{"$set":{"sentiment":sentiment,"sentiment_factor":sentiment_factor}})
 
 
 

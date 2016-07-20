@@ -12,7 +12,7 @@ def setDailyResult(stockcode,date):
     # yes_time = now_time + datetime.timedelta(days=-1)
     # grab_time = yes_time.strftime('%m-%d')
 
-    coll = db[date + 'SentimentFactor2']
+    coll = db[date + 'SentimentFactor']
 
     cusor = coll.find({"last_date":date})
     for document in cusor:

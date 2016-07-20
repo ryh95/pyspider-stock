@@ -10,7 +10,7 @@ def getSentimentFactor2(stockcode,date):
     # grab_time = yes_time.strftime('%m-%d')
 
     db = client[stockcode+'eastmoney']
-    coll = db[date+'SentimentFactor']
+    coll = db[date+'GuYouHui']
 
     documents = coll.aggregate(
         [
@@ -18,10 +18,10 @@ def getSentimentFactor2(stockcode,date):
         ]
     )
 
-    coll2 = db[date+'SentimentFactor2']
+    coll2 = db[date+'SentimentFactor']
     for result in documents['result']:
         coll2.insert_one({
             "sentiment_factor": result['sentiment_factor'],
-            "last_date": result['_id']
+            "last_date": date
         })
 
