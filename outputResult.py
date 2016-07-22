@@ -80,6 +80,8 @@ def getDailyResult(date):
     # 保存
     wb.save('data/'+date + 'result' + '.xls')
 
+    print date+'result.xlsx'+'has been produced!'
+
 def getDailyStockInfo(stockcode, date,type='sentiment'):
     client = MongoClient()
     db = client[date]

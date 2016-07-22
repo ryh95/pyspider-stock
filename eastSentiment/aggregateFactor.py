@@ -2,7 +2,7 @@
 import datetime
 from pymongo import MongoClient
 
-def getSentimentFactor2(stockcode,date):
+def aggregate(stockcode, date):
     client = MongoClient()
     # 获取昨天的日期
     # now_time = datetime.datetime.now()
@@ -25,3 +25,4 @@ def getSentimentFactor2(stockcode,date):
             "last_date": date
         })
 
+    print date+stockcode+'SentimentFactor has been aggregated!'

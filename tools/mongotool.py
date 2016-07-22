@@ -24,6 +24,8 @@ def dump():
 
     os.system('mv dump '+grab_time)
 
+    print grab_time+'data has been dumped!'
+
 def drop():
     client = MongoClient()
     db = client['stockcodes']
@@ -43,3 +45,5 @@ def drop():
         coll = db[grab_time+'SentimentFactor']
         coll.drop()
     client.drop_database(grab_time)
+
+    print grab_time+'data has been dropped!'

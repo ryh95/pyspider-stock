@@ -33,15 +33,4 @@ def getSentimentFactor(stockcode,date):
             sentiment,sentiment_factor = 0,0
         coll.update({"_id":document['_id']},{"$set":{"sentiment":sentiment,"sentiment_factor":sentiment_factor}})
 
-
-
-        # # print sentiment_factor
-        # coll2 = db[date+'SentimentFactor']
-        #
-        # result = coll2.insert_one(
-        #     {
-        #         "create_date": create_date,
-        #         "sentiment_factor": sentiment_factor,
-        #         "last_date": last
-        #     })
-        # print result.inserted_id
+        print date+stockcode+'GuYouHui: document'+document['_id']+'has been updated!'
