@@ -1,4 +1,6 @@
 import datetime
+import os
+
 from celery import Celery
 from pymongo import MongoClient
 
@@ -32,3 +34,5 @@ def main(stockCodes):
 
     mongotool.dump()
     mongotool.drop()
+
+    os.system('mv data/'+grab_time+'result.xls'+' /var/www/html')
