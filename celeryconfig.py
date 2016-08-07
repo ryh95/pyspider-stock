@@ -2,6 +2,7 @@ from pymongo import MongoClient
 
 BROKER_URL = 'redis://'
 CELERY_RESULT_BACKEND = "redis://"
+CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 
 from celery.schedules import crontab
 stockCodes = []
@@ -14,7 +15,7 @@ for document in documents:
 
 
 CELERYBEAT_SCHEDULE = {
-    'every-minute': {
+    'every-24hours': {
         'task': 'tasks.main',
         'schedule': crontab(hour='*/24'),
         'args': (stockCodes),

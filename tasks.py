@@ -14,7 +14,7 @@ celery = Celery('tasks')
 celery.config_from_object('celeryconfig')
 
 @celery.task
-def main(stockCodes):
+def main(*stockCodes):
     now_time = datetime.datetime.now()
     yes_time = now_time + datetime.timedelta(days=-1)
     grab_time = yes_time.strftime('%m-%d')
