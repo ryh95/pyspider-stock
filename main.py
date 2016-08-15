@@ -1,4 +1,7 @@
 import datetime
+import os
+
+from apscheduler.schedulers.blocking import BlockingScheduler
 from pymongo import MongoClient
 
 import dailyResult
@@ -21,22 +24,19 @@ documents = db.HS300.find()
 for document in documents:
     stockCodes.append(document['stockcode'])
 
-
-
-while True:
+def work():
     now_time = datetime.datetime.now()
     yes_time = now_time + datetime.timedelta(days=-1)
     grab_time = yes_time.strftime('%m-%d')
     for stockCode in stockCodes:
-
-        produceFactor.getSentimentFactor(stockCode,grab_time)
+        produceFactor.getSentimentFactor(stockCode, grab_time)
         aggregateFactor.aggregate(stockCode, grab_time)
-        dailyResult.setDailyResult(stockCode,grab_time)
+        dailyResult.setDailyResult(stockCode, grab_time)
 
     outputResult.getDailyResult(grab_time)
 
     sendMail.send(grab_time)
-    
+
     client = MongoClient()
     db = client.taskdb
     db.east.drop()
@@ -44,5 +44,16 @@ while True:
 
     mongotool.dump()
     mongotool.drop()
+    os.system('mv data/' + grab_time + 'result.xls' + ' /var/www/html')
 
-    time.sleep(24*60*60)
+if __name__ == '__main__':
+
+    scheduler = BlockingScheduler()
+    scheduler.add_executor('processpool')
+    scheduler.add_job(work, 'interval', days=1)
+    print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
+
+    try:
+        scheduler.start()
+    except (KeyboardInterrupt, SystemExit):
+        pass
