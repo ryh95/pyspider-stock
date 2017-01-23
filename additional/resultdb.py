@@ -9,6 +9,8 @@ import json
 import logging
 import time
 import re
+
+import datetime
 from pymongo import MongoClient
 from pyspider.database.base.resultdb import ResultDB as BaseResultDB
 from .mongodbbase import SplitTableMixin
@@ -48,10 +50,13 @@ class ResultDB(SplitTableMixin, BaseResultDB):
 #2.specify the collection_name
             flag = result['url'].split(',')[2][0]
 
-
+            # add time for GuYouHui
+            now_time = datetime.datetime.now()
+            yes_time = now_time + datetime.timedelta(days=-1)
+            grab_time = yes_time.strftime('%m-%d')
 
             if flag == '5':
-                collection_name = 'GuYouHui'
+                collection_name = grab_time+'GuYouHui'
             elif flag == '1':
                 collection_name = 'XinWen'
             elif flag == '2':
