@@ -4,12 +4,8 @@ import os
 from apscheduler.schedulers.blocking import BlockingScheduler
 from pymongo import MongoClient
 
-import dailyResult
-import outputResult
-import sendMail
-import time
-from eastSentiment import stockClose,produceFactor,aggregateFactor,combine
-import draw
+from east_sentiment import dailyResult, sendMail
+from east_sentiment import produceFactor,aggregateFactor, outputResult
 from tools import mongotool
 
 stockCodes = []
