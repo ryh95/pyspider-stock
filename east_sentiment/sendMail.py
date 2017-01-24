@@ -9,10 +9,13 @@ import datetime
 import pandas as pd
 
 
-def send(date):
+def send(date,section_list):
     _user = "1971990184@qq.com"
     _pwd = "rxdaltsmieszgfje"
-    _to = ['henry.duye@gmail.com','qliu.net@gmail.com','380312089@qq.com']
+    # _to = ['henry.duye@gmail.com','qliu.net@gmail.com','380312089@qq.com']
+
+    # test
+    _to = ['ryuanhang@gmail.com']
 
     # now_time = datetime.datetime.now()
     # yes_time = now_time + datetime.timedelta(days=-1)
@@ -23,7 +26,14 @@ def send(date):
     msg["Subject"] = date+"Result"
     msg["From"] = _user
     msg["To"] = ",".join(_to)
-    msg.attach(MIMEText(excel2str(date), 'plain', 'utf-8'))
+
+    # add content for the mail
+    msg_content = ''
+    for section_name in section_list:
+        msg_content += excel2str(date, section_name=section_name)
+        msg_content += '\n'
+
+    msg.attach(MIMEText(msg_content, 'plain', 'utf-8'))
 
     #with open(date+'attachment.xls', 'rb') as f:
        # # 设置附件的MIME和文件名，这里是png类型:
@@ -48,8 +58,8 @@ def send(date):
     except smtplib.SMTPException, e:
         print "Falied,%s" % e
 
-def excel2str(date):
-    df = pd.read_excel("data/" + date + "result.xls",
+def excel2str(date,section_name=''):
+    df = pd.read_excel("data/" + date+section_name + "result.xls",
         converters={'positive': str, 'negative': str, 'hottest': str},header=None)
     string = ''
     for list in df.values:

@@ -3,7 +3,7 @@ import datetime
 from pymongo import MongoClient
 
 
-def setDailyResult(stockcode,date):
+def setDailyResult(stockcode,date,section_name=''):
     client = MongoClient()
 
     db = client[stockcode + 'eastmoney']
@@ -22,7 +22,7 @@ def setDailyResult(stockcode,date):
 
     dailyCounts =  coll.count()
 
-    db = client[date]
+    db = client[date+section_name]
     try:
         db.DailyResult.insert_one(
             {

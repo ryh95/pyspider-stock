@@ -6,12 +6,12 @@ import pandas as pd
 import xlwt
 from pymongo import MongoClient
 
-def getDailyResult(date):
+def getDailyResult(date,section_name=''):
     client = MongoClient()
     # now_time = datetime.datetime.now()
     # yes_time = now_time + datetime.timedelta(days=-1)
     # grab_time = yes_time.strftime('%m-%d')
-    db = client[date]
+    db = client[date+section_name]
 
 
     # 找到前20名
@@ -78,9 +78,9 @@ def getDailyResult(date):
         i += 1
 
     # 保存
-    wb.save('data/'+date + 'result' + '.xls')
+    wb.save('data/'+date+section_name + 'result' + '.xls')
 
-    print date+'result.xlsx'+'has been produced!'
+    print date+section_name+'result.xlsx'+'has been produced!'
 
 def getDailyStockInfo(stockcode, date,type='sentiment'):
     client = MongoClient()

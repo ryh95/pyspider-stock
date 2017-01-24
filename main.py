@@ -1,3 +1,4 @@
+# coding:utf8
 import datetime
 import os
 
@@ -20,19 +21,41 @@ documents = db.HS300.find()
 for document in documents:
     stockCodes.append(document['stockcode'])
 
+# append IT stock codes
+IT_stockCodes = []
+documents_IT = db.IT.find()
+for document in documents_IT:
+    IT_stockCodes.append(document['stockcode'])
+
 def work():
     now_time = datetime.datetime.now()
     yes_time = now_time + datetime.timedelta(days=-1)
     grab_time = yes_time.strftime('%m-%d')
     for stockCode in stockCodes:
+        # 一个帖子的
         produceFactor.getSentimentFactor(stockCode, grab_time)
+        # 一个股票的
         aggregateFactor.aggregate(stockCode, grab_time)
+        # 一天的
         dailyResult.setDailyResult(stockCode, grab_time)
 
     outputResult.getDailyResult(grab_time)
 
-    sendMail.send(grab_time)
+    # For IT stocks
 
+    for stockCode in IT_stockCodes:
+        # 一个帖子的
+        produceFactor.getSentimentFactor(stockCode, grab_time)
+        # 一个股票的
+        aggregateFactor.aggregate(stockCode, grab_time)
+        # 一天的
+        dailyResult.setDailyResult(stockCode, grab_time, section_name='IT')
+
+    outputResult.getDailyResult(grab_time, section_name='IT')
+
+    sendMail.send(grab_time, section_list=['', 'IT'])
+
+    # dump and drop part
     client = MongoClient()
     db = client.taskdb
     db.east.drop()
