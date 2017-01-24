@@ -21,7 +21,11 @@ class Handler(BaseHandler):
         documents = db.HS300.find()
         for document in documents:
             self.StockCodes.append(document['stockcode'])
-        # self.StockCodes = ['601001','601003']
+
+        # Add IT stock codes
+        documents_it = db.IT.find()
+        for document in documents_it:
+            self.StockCodes.append(document['stockcode'])
 
     @every(minutes = 24*60)
     def on_start(self):
