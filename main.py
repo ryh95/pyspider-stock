@@ -1,7 +1,7 @@
 # coding:utf8
 import datetime
 import os
-
+import time
 from apscheduler.schedulers.blocking import BlockingScheduler
 from pymongo import MongoClient
 
@@ -27,52 +27,48 @@ documents_IT = db.IT.find()
 for document in documents_IT:
     IT_stockCodes.append(document['stockcode'])
 
-def work():
-    now_time = datetime.datetime.now()
-    yes_time = now_time + datetime.timedelta(days=-1)
-    grab_time = yes_time.strftime('%m-%d')
-    for stockCode in stockCodes:
-        # 一个帖子的
-        produceFactor.getSentimentFactor(stockCode, grab_time)
-        # 一个股票的
-        aggregateFactor.aggregate(stockCode, grab_time)
-        # 一天的
-        dailyResult.setDailyResult(stockCode, grab_time)
-
-    outputResult.getDailyResult(grab_time)
-
-    # For IT stocks
-
-    for stockCode in IT_stockCodes:
-        # 一个帖子的
-        produceFactor.getSentimentFactor(stockCode, grab_time)
-        # 一个股票的
-        aggregateFactor.aggregate(stockCode, grab_time)
-        # 一天的
-        dailyResult.setDailyResult(stockCode, grab_time, section_name='IT')
-
-    outputResult.getDailyResult(grab_time, section_name='IT')
-
-    sendMail.send(grab_time, section_list=['', 'IT'])
-
-    # dump and drop part
-    client = MongoClient()
-    db = client.taskdb
-    db.east.drop()
-    print 'east collection has been dropped!'
-
-    mongotool.dump()
-    mongotool.drop()
-    os.system('mv data/' + grab_time + 'result.xls' + ' /var/www/html')
-
 if __name__ == '__main__':
 
-    scheduler = BlockingScheduler()
-    scheduler.add_executor('processpool')
-    scheduler.add_job(work, 'interval', days=1)
-    print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
+    while True:
+        t0 = time.clock()
 
-    try:
-        scheduler.start()
-    except (KeyboardInterrupt, SystemExit):
-        pass
+        now_time = datetime.datetime.now()
+        yes_time = now_time + datetime.timedelta(days=-1)
+        grab_time = yes_time.strftime('%m-%d')
+        for stockCode in stockCodes:
+            # 一个帖子的
+            produceFactor.getSentimentFactor(stockCode, grab_time)
+            # 一个股票的
+            aggregateFactor.aggregate(stockCode, grab_time)
+            # 一天的
+            dailyResult.setDailyResult(stockCode, grab_time)
+
+        outputResult.getDailyResult(grab_time)
+
+        # For IT stocks
+
+        for stockCode in IT_stockCodes:
+            # 一个帖子的
+            produceFactor.getSentimentFactor(stockCode, grab_time)
+            # 一个股票的
+            aggregateFactor.aggregate(stockCode, grab_time)
+            # 一天的
+            dailyResult.setDailyResult(stockCode, grab_time, section_name='IT')
+
+        outputResult.getDailyResult(grab_time, section_name='IT')
+
+        sendMail.send(grab_time, section_list=['', 'IT'])
+
+        # dump and drop part
+        client = MongoClient()
+        db = client.taskdb
+        db.east.drop()
+        print 'east collection has been dropped!'
+
+        mongotool.dump()
+        mongotool.drop()
+        os.system('mv data/' + grab_time + 'result.xls' + ' /var/www/html')
+
+        t1 = time.clock()
+
+        time.sleep(86400-(t1-t0))
