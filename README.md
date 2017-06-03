@@ -21,9 +21,9 @@
 
 ### 第一步 抓取帖子
 
-* 下载[pyspider][6]，[mongoDB][7]，[redis][8]，[snowNLP][9]及相应的依赖库
-* 运行`set_hs300/setCodes.py`（为了将HS300成份股的股票代码装入mongoDB）
-* 然后，将`resultdb.py`放入pyspider的`database/mongodb`目录下（为了将爬取到的数据放入mongoDB）
+* 下载[pyspider][6]，[mongoDB][7]，[redis][8]，[snowNLP][9]，[pymongo(2.9)][10]及相应的依赖库
+* 运行`set_codes/set_hs300.py`（为了将HS300成份股的股票代码装入mongoDB）
+* 然后，将`resultdb.py`放入pyspider的`database/mongodb`目录下（为了将爬取到的数据放入mongoDB）,pyspider路径使用`pip show pyspider`命令
 * 启动`redis`
 * 然后，在有`config.json`的目录下，**command line** 运行`pyspider -c config.json all &`
 * 其次，将script里的脚本复制后，粘贴到localhost：5000下你自己的工程里（想要爬取哪个网站就粘贴哪个script），保存
@@ -64,7 +64,7 @@
 
 最后taskdb里面这个任务会被清除，以便明天增量抓取。同时会将5天前数据库中的数据导出，存在本地，并删除数据库中的数据
 
-如果想用[app][10]在android端查看结果，就保留
+如果想用[app][11]在android端查看结果，就保留
 
     os.system('mv data/' + grab_time + 'result.xls' + ' /var/www/html')
 
@@ -72,7 +72,7 @@
 *English version*
 
 ## What's the aim of this project？
-This project use [pyspider][11] to get posts of  [eastmoney][12], [xueqiu][13], [sinaguba][14],then use NLP techs to analyze the sentiment of public in order to select stocks.
+This project use [pyspider][12] to get posts of  [eastmoney][13], [xueqiu][14], [sinaguba][15],then use NLP techs to analyze the sentiment of public in order to select stocks.
 
 SO
 
@@ -85,7 +85,7 @@ It has two parts
 
 ### Step 1 Crawl posts
 
-* Download [pyspider][15]，[mongoDB][16]，[redis][17]，[snowNLP][18] and other dependencies
+* Download [pyspider][16]，[mongoDB][17]，[redis][18]，[snowNLP][19] and other dependencies
 * run `set_hs300/setCodes.py`（in order to get all symbols of HS300 and load them into mongoDB）
 * put `resultdb.py` into `database/mongodb` directory of **pyspider**（in order to save the crawling data to mongoDB）
 * start `redis`
@@ -125,7 +125,7 @@ The result would be mailed to specific users, through `sendMail` module.
 
 Tasks under `taskdb` would be deleted in order to crawl posts periodically. Meanwhile data which stored 5 days ago would be dumped as backup and mongoDB would delete the original one. 
 
-If you want to use the [app][19] to check the result on android, keep the following code 
+If you want to use the [app][20] to check the result on android, keep the following code 
 
     os.system('mv data/' + grab_time + 'result.xls' + ' /var/www/html')
 
@@ -139,13 +139,14 @@ If you want to use the [app][19] to check the result on android, keep the follow
   [7]: https://www.mongodb.com/
   [8]: https://redis.io/
   [9]: https://github.com/isnowfy/snownlp
-  [10]: https://github.com/ryh95/huaxiApp
-  [11]: http://docs.pyspider.org/en/latest/
-  [12]: http://guba.eastmoney.com/
-  [13]: https://xueqiu.com/
-  [14]: http://guba.sina.com.cn/
-  [15]: http://docs.pyspider.org/en/latest/
-  [16]: https://www.mongodb.com/
-  [17]: https://redis.io/
-  [18]: https://github.com/isnowfy/snownlp
-  [19]: https://github.com/ryh95/huaxiApp
+  [10]: http://api.mongodb.com/python/current/installation.html
+  [11]: https://github.com/ryh95/huaxiApp
+  [12]: http://docs.pyspider.org/en/latest/
+  [13]: http://guba.eastmoney.com/
+  [14]: https://xueqiu.com/
+  [15]: http://guba.sina.com.cn/
+  [16]: http://docs.pyspider.org/en/latest/
+  [17]: https://www.mongodb.com/
+  [18]: https://redis.io/
+  [19]: https://github.com/isnowfy/snownlp
+  [20]: https://github.com/ryh95/huaxiApp
