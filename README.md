@@ -22,7 +22,7 @@
 ### 第一步 抓取帖子
 
 * 下载[pyspider][6]，[mongoDB][7]，[redis][8]，[snowNLP][9]，[pymongo(2.9)][10]及相应的依赖库
-* 运行`set_codes/set_hs300.py`（为了将HS300成份股的股票代码装入mongoDB）
+* 运行`set_codes/set_hs300.py`和`set_IT.py`（为了将HS300成份股的股票代码装入mongoDB,后者的目的是放入IT股票的代码）
 * 然后，将`resultdb.py`放入pyspider的`database/mongodb`目录下（为了将爬取到的数据放入mongoDB）,pyspider路径使用`pip show pyspider`命令
 * 启动`redis`
 * 然后，在有`config.json`的目录下，**command line** 运行`pyspider -c config.json all &`
