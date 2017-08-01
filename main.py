@@ -30,7 +30,9 @@ for document in documents_IT:
 def work():
     now_time = datetime.datetime.now()
     yes_time = now_time + datetime.timedelta(days=-1)
+    dump_time = now_time + datetime.timedelta(days=-5)
     grab_time = yes_time.strftime('%m-%d')
+    dump_time = dump_time.strftime('%m-%d')
     for stockCode in stockCodes:
         # 一个帖子的
         produceFactor.getSentimentFactor(stockCode, grab_time)
@@ -61,8 +63,8 @@ def work():
     db.east.drop()
     print 'east collection has been dropped!'
 
-    mongotool.dump()
-    mongotool.drop()
+    mongotool.dump(dump_time)
+    mongotool.drop(dump_time)
     os.system('mv data/' + grab_time + 'result.xls' + ' /var/www/html')
 
 if __name__ == '__main__':

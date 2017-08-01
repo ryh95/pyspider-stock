@@ -3,7 +3,7 @@ import os
 import datetime
 from pymongo import MongoClient
 
-def dump():
+def dump(dump_time):
     client = MongoClient()
     db = client['stockcodes']
     documents = db.HS300.find()
@@ -15,9 +15,6 @@ def dump():
     for document in documents_it:
         stockcodes.append(document['stockcode'])
 
-    now_time = datetime.datetime.now()
-    dump_time = now_time + datetime.timedelta(days=-5)
-    dump_time = dump_time.strftime('%m-%d')
 
     os.system('mkdir '+dump_time)
 
@@ -32,7 +29,7 @@ def dump():
     print dump_time+'data has been dumped!'
     print dump_time +'IT'+ 'data has been dumped!'
 
-def drop():
+def drop(drop_time):
     client = MongoClient()
     db = client['stockcodes']
     documents = db.HS300.find()
@@ -45,9 +42,6 @@ def drop():
     for document in documents_it:
         stockcodes.append(document['stockcode'])
 
-    now_time = datetime.datetime.now()
-    drop_time = now_time + datetime.timedelta(days=-5)
-    drop_time = drop_time.strftime('%m-%d')
 
     for stockcode in stockcodes:
         db = client[stockcode+'eastmoney']
