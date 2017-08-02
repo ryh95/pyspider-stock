@@ -13,7 +13,7 @@ from pymongo import *
 class Handler(BaseHandler):
     crawl_config = {
     }
-    
+
     def __init__(self):
         client = MongoClient()
         db = client['stockcodes']
@@ -29,7 +29,7 @@ class Handler(BaseHandler):
 
     @every(minutes = 24*60)
     def on_start(self):
-        
+
         for stockcode in self.StockCodes:
             self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',5_1.html', callback=self.index_page)
             # self.crawl('http://guba.eastmoney.com/list,' + stockcode + ',1,'+'f_1.html', callback=self.index_page)
@@ -46,17 +46,23 @@ class Handler(BaseHandler):
         grab_time = yes_time.strftime('%m-%d')
         first = True
         flag = False
+        flip = True
 
         # 提取每一页的所有帖子
         for each in content_field:
             last = each.xpath('span[6]/text()')[0]
             last_time = last[:5]
             # 根据时间来判断
-            if grab_time != last_time:
+            grab_int_time = int(grab_time.replace('-',''))
+            last_int_time = int(last_time.replace('-',''))
+            if grab_int_time < last_int_time:
                 if first != True:
                     flag = True
                     break
                 continue
+            elif grab_int_time > last_int_time:
+                flip = False
+                break
             first = False
             item = {}
             read = each.xpath('span[1]/text()')[0]
@@ -88,14 +94,14 @@ class Handler(BaseHandler):
 
 
         # 生成下一页链接
-        if not flag:
+        if (not flag) and flip:
             info = selector.xpath('//*[@id="articlelistnew"]/div[@class="pager"]/span/@data-pager')[0]
             List = info.split('|')
             if int(List[2])*int(List[3])<int(List[1]):
                 nextLink = response.url.split('_')[0] +  '_'  + str(int(List[3])+1) + '.html'
                 self.crawl(nextLink,callback = self.index_page)
 
-   
+
     def detail_page(self, response):
         selector =  etree.HTML(response.text)
         info = selector.xpath('//div[@class="stockcodec"]')[0]
@@ -105,9 +111,19 @@ class Handler(BaseHandler):
         item = response.save['item']
         item['text'] = data
         item['create'] = time
+
+        year = time[:4]
+        last_date = item['last'][:5].replace('-','')
+        last_time = year + last_date
+
+        # if last update time less than create time
+        if int(last_time) < int(time[:10].replace('-','')):
+            item['last'] = str(int(year)+1)+'-'+item['last']
+        else:
+            item['last'] = str(int(year))+'-'+item['last']
+
         try:
             item['created_at'] = int(re.findall('\d{9}',response.url)[0])
         except IndexError,e:
             item['created_at'] = int(re.findall('\d{8}',response.url)[0])
         return item
-        

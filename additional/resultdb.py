@@ -51,12 +51,9 @@ class ResultDB(SplitTableMixin, BaseResultDB):
             flag = result['url'].split(',')[2][0]
 
             # add time for GuYouHui
-            now_time = datetime.datetime.now()
-            yes_time = now_time + datetime.timedelta(days=-1)
-            grab_time = yes_time.strftime('%m-%d')
 
             if flag == '5':
-                collection_name = grab_time+'GuYouHui'
+                collection_name = result['last'][:10] +'GuYouHui'
             elif flag == '1':
                 collection_name = 'XinWen'
             elif flag == '2':
